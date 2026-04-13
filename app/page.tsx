@@ -178,7 +178,7 @@ export default function HomePage() {
               </div>
               <div className="relative h-[500px] md:h-full min-h-[500px]">
                 <Image 
-                  src="https://picsum.photos/seed/ceo-shaun/800/1000"
+                  src={companyInfo.ceo.image}
                   alt={companyInfo.ceo.name}
                   fill
                   className="object-cover"

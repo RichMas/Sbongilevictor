@@ -44,7 +44,7 @@ export default function LeadershipPage() {
               className="relative h-[700px] rounded-3xl overflow-hidden shadow-2xl group"
             >
               <Image 
-                src="https://picsum.photos/seed/ceo-shaun-portrait/800/1200"
+                src={companyInfo.ceo.image}
                 alt={companyInfo.ceo.name}
                 fill
                 className="object-cover transition-transform duration-700 group-hover:scale-105"

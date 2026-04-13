@@ -22,7 +22,7 @@ export const companyInfo = {
     name: "Shaun Shady Sidelle",
     title: "Chief Executive Officer & Director",
     bio: "Under the visionary leadership of Shaun Shady Sidelle, Sbongilevictor Trading (Pty) Ltd has grown into a multi-industry powerhouse. Shaun is also the proud owner of SIL Logistics Group and Sidell Trading and Projects, bringing a wealth of diversified business experience to our operations. With a deep commitment to South Africa's industrial development, he oversees the strategic direction of our logistics, mining, and engineering operations. His focus on operational excellence and ethical business practices ensures that every client receives the highest standard of service, fostering long-term partnerships built on trust and reliability.",
-    image: "https://picsum.photos/seed/ceo-shaun/800/1000"
+    image: "/ceo.png"
   },
   contact: {
     phone: "069 314 9502",
