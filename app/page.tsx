@@ -16,8 +16,58 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 import { companyInfo, services } from '@/lib/data';
+import { db, handleFirestoreError, OperationType } from '@/lib/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 export default function HomePage() {
+  const [isSubmitted, setIsSubmitted] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+
+  const handleContactSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+
+    const formData = new FormData(e.currentTarget);
+    const leadData = {
+      fullName: formData.get('fullName') as string,
+      email: formData.get('email') as string,
+      service: formData.get('service') as string,
+      message: formData.get('message') as string,
+      type: 'contact',
+      status: 'new',
+      createdAt: serverTimestamp(),
+    };
+
+    try {
+      await addDoc(collection(db, 'leads'), leadData);
+      
+      // Send email notification
+      try {
+        await fetch('/api/send-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(leadData),
+        });
+      } catch (emailErr) {
+        console.error('Failed to send email notification:', emailErr);
+      }
+
+      setIsSubmitted(true);
+    } catch (err) {
+      console.error('Error submitting contact form:', err);
+      setError('There was an error sending your message. Please try again.');
+      try {
+        handleFirestoreError(err, OperationType.CREATE, 'leads');
+      } catch (fErr) {
+        // Error already logged
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white text-gray-900">
       {/* Hero Section */}
@@ -49,7 +99,7 @@ export default function HomePage() {
               {companyInfo.name} is a premier South African multi-industry leader specializing in logistics, mining, construction, and engineering solutions.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link href="#contact" className="bg-primary-yellow text-primary-green px-8 py-4 rounded-full text-lg font-bold hover:bg-primary-yellow-dark transition-all flex items-center justify-center gap-2">
+              <Link href="/quote" className="bg-primary-yellow text-primary-green px-8 py-4 rounded-full text-lg font-bold hover:bg-primary-yellow-dark transition-all flex items-center justify-center gap-2">
                 Get a Quote <ArrowRight className="w-5 h-5" />
               </Link>
               <Link href="/services" className="border-2 border-white text-white px-8 py-4 rounded-full text-lg font-bold hover:bg-white/10 transition-all flex items-center justify-center">
@@ -315,7 +365,7 @@ export default function HomePage() {
                 <p className="text-sm text-gray-500">Full CSD Registration Report (10 Pages) is available upon request.</p>
               </div>
             </div>
-            <Link href="#contact" className="bg-primary-green text-white px-8 py-3 rounded-full font-bold hover:bg-primary-green-dark transition-all">
+            <Link href="/quote" className="bg-primary-green text-white px-8 py-3 rounded-full font-bold hover:bg-primary-green-dark transition-all">
               Request Documents
             </Link>
           </div>
@@ -376,33 +426,68 @@ export default function HomePage() {
               </div>
 
               <div className="p-12 lg:p-20">
-                <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className="text-sm font-bold uppercase text-gray-400">Full Name</label>
-                      <input type="text" className="w-full px-6 py-4 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-primary-green outline-none" placeholder="John Doe" />
+                {isSubmitted ? (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="h-full flex flex-col items-center justify-center text-center space-y-6"
+                  >
+                    <div className="w-20 h-20 bg-primary-green/10 rounded-full flex items-center justify-center">
+                      <CheckCircle2 className="w-10 h-10 text-primary-green" />
+                    </div>
+                    <h4 className="text-2xl font-bold text-gray-900">Message Sent!</h4>
+                    <p className="text-gray-600">
+                      Thank you for contacting us. We will get back to you shortly.
+                    </p>
+                    <button 
+                      onClick={() => setIsSubmitted(false)}
+                      className="text-primary-green font-bold hover:underline"
+                    >
+                      Send another message
+                    </button>
+                  </motion.div>
+                ) : (
+                  <form className="space-y-6" onSubmit={handleContactSubmit}>
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-sm font-bold uppercase text-gray-400">Full Name</label>
+                        <input required name="fullName" type="text" className="w-full px-6 py-4 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-primary-green outline-none" placeholder="John Doe" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-bold uppercase text-gray-400">Email Address</label>
+                        <input required name="email" type="email" className="w-full px-6 py-4 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-primary-green outline-none" placeholder="john@example.com" />
+                      </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-bold uppercase text-gray-400">Email Address</label>
-                      <input type="email" className="w-full px-6 py-4 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-primary-green outline-none" placeholder="john@example.com" />
+                      <label className="text-sm font-bold uppercase text-gray-400">Service Required</label>
+                      <select required name="service" className="w-full px-6 py-4 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-primary-green outline-none appearance-none">
+                        <option value="">Select a service...</option>
+                        {services.map(s => (
+                          <option key={s.id} value={s.id}>{s.title}</option>
+                        ))}
+                      </select>
                     </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold uppercase text-gray-400">Service Required</label>
-                    <select className="w-full px-6 py-4 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-primary-green outline-none appearance-none">
-                      {services.map(s => (
-                        <option key={s.id}>{s.title}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold uppercase text-gray-400">Message</label>
-                    <textarea rows={4} className="w-full px-6 py-4 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-primary-green outline-none" placeholder="How can we help you?"></textarea>
-                  </div>
-                  <button className="w-full bg-primary-green text-white py-5 rounded-xl font-bold text-lg hover:bg-primary-green-dark transition-colors shadow-xl shadow-primary-green/20">
-                    Send Message
-                  </button>
-                </form>
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold uppercase text-gray-400">Message</label>
+                      <textarea required name="message" rows={4} className="w-full px-6 py-4 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-primary-green outline-none" placeholder="How can we help you?"></textarea>
+                    </div>
+                    {error && (
+                      <div className="p-4 bg-red-50 text-red-600 rounded-xl text-sm font-medium">
+                        {error}
+                      </div>
+                    )}
+                    <button 
+                      disabled={isLoading}
+                      className="w-full bg-primary-green text-white py-5 rounded-xl font-bold text-lg hover:bg-primary-green-dark transition-colors shadow-xl shadow-primary-green/20 flex items-center justify-center gap-3"
+                    >
+                      {isLoading ? (
+                        <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      ) : (
+                        "Send Message"
+                      )}
+                    </button>
+                  </form>
+                )}
               </div>
             </div>
           </div>

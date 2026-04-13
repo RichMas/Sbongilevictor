@@ -3,6 +3,8 @@ import { Inter, Outfit } from 'next/font/google';
 import './globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import ErrorBoundary from '@/components/ErrorBoundary';
+import FirebaseConnectionTest from '@/components/FirebaseConnectionTest';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -23,9 +25,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${inter.variable} ${outfit.variable}`}>
       <body suppressHydrationWarning className="font-sans antialiased">
-        <Navbar />
-        <main>{children}</main>
-        <Footer />
+        <FirebaseConnectionTest />
+        <ErrorBoundary>
+          <Navbar />
+          <main>{children}</main>
+          <Footer />
+        </ErrorBoundary>
       </body>
     </html>
   );

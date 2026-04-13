@@ -122,7 +122,7 @@ export default function ServiceDetailPage() {
                   Our specialists are ready to discuss your specific requirements and provide a detailed quote.
                 </p>
                 <Link 
-                  href="/#contact" 
+                  href="/quote" 
                   className="w-full bg-primary-green text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-primary-green-dark transition-colors"
                 >
                   Contact Us <ArrowRight className="w-5 h-5" />
@@ -154,7 +154,7 @@ export default function ServiceDetailPage() {
       <section className="py-24 bg-gray-900 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h3 className="text-3xl md:text-4xl font-display font-bold mb-8">Ready to get started with {service.title}?</h3>
-          <Link href="/#contact" className="inline-flex items-center gap-2 bg-primary-yellow text-primary-green px-10 py-4 rounded-full font-bold text-lg hover:bg-primary-yellow-dark transition-all">
+          <Link href="/quote" className="inline-flex items-center gap-2 bg-primary-yellow text-primary-green px-10 py-4 rounded-full font-bold text-lg hover:bg-primary-yellow-dark transition-all">
             Get a Quote <ArrowRight className="w-5 h-5" />
           </Link>
         </div>

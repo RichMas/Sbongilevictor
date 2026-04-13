@@ -43,7 +43,7 @@ export default function Navbar() {
                 {link.name}
               </Link>
             ))}
-            <Link href="/#contact" className="bg-primary-green text-white px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-primary-green-dark transition-all shadow-lg shadow-primary-green/20">
+            <Link href="/quote" className="bg-primary-green text-white px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-primary-green-dark transition-all shadow-lg shadow-primary-green/20">
               Get a Quote
             </Link>
           </div>
@@ -75,7 +75,7 @@ export default function Navbar() {
             </Link>
           ))}
           <Link 
-            href="/#contact" 
+            href="/quote" 
             onClick={() => setIsMenuOpen(false)} 
             className="block text-lg font-medium text-primary-green"
           >

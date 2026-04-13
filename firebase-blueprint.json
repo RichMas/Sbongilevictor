@@ -1,0 +1,58 @@
+{
+  "entities": {
+    "Lead": {
+      "title": "Lead",
+      "description": "A customer inquiry or quote request.",
+      "type": "object",
+      "properties": {
+        "fullName": {
+          "type": "string",
+          "description": "The full name of the customer."
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "The email address of the customer."
+        },
+        "phone": {
+          "type": "string",
+          "description": "The phone number of the customer."
+        },
+        "company": {
+          "type": "string",
+          "description": "The company name (optional)."
+        },
+        "service": {
+          "type": "string",
+          "description": "The service the customer is interested in."
+        },
+        "message": {
+          "type": "string",
+          "description": "The detailed message or project description."
+        },
+        "type": {
+          "type": "string",
+          "enum": ["quote", "contact"],
+          "description": "The type of lead (quote request or general contact)."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the lead was created."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["new", "contacted", "closed"],
+          "description": "The current status of the lead."
+        }
+      },
+      "required": ["fullName", "email", "service", "message", "type", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/leads/{leadId}": {
+      "schema": "Lead",
+      "description": "Collection of customer leads and quote requests."
+    }
+  }
+}
